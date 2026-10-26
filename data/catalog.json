@@ -1,0 +1,1245 @@
+[
+  {
+    "id": "shanghai",
+    "name": "上证指数",
+    "code": "000001",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh000001"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000001"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000001"
+      }
+    ],
+    "note": "",
+    "reference_start": "1993-02-16"
+  },
+  {
+    "id": "shenzhen",
+    "name": "深证成指",
+    "code": "399001",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sz399001"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399001"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399001"
+      }
+    ],
+    "note": "",
+    "reference_start": "2007-10-10"
+  },
+  {
+    "id": "csi300",
+    "name": "沪深300",
+    "code": "000300",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000300"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000300"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000300"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000300"
+      }
+    ],
+    "note": "",
+    "reference_start": "2007-10-17"
+  },
+  {
+    "id": "csi500",
+    "name": "中证500",
+    "code": "000905",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000905"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000905"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000905"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000905"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "csi1000",
+    "name": "中证1000",
+    "code": "000852",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000852"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000852"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000852"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000852"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "csi2000",
+    "name": "中证2000",
+    "code": "932000",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "932000"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "2.932000"
+      }
+    ],
+    "note": "",
+    "archives": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh932000"
+      }
+    ],
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "dividend",
+    "name": "中证红利",
+    "code": "000922",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000922"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000922"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000922"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000922"
+      }
+    ],
+    "note": "中证红利指数。",
+    "reference_start": "2007-10-16"
+  },
+  {
+    "id": "dividend-low100",
+    "name": "红利低波100",
+    "code": "930955",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "930955"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "2.930955"
+      }
+    ],
+    "note": "按用户确认的中证红利低波动指数口径。",
+    "archives": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh930955"
+      }
+    ]
+  },
+  {
+    "id": "dividend-low50",
+    "name": "红利低波50",
+    "code": "H30269",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "H30269"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "2.H30269"
+      }
+    ],
+    "note": "按用户确认的中证红利低波动指数口径。",
+    "archives": [
+      {
+        "type": "sina_archive",
+        "symbol": "shh30269"
+      }
+    ]
+  },
+  {
+    "id": "chinext",
+    "name": "创业板指",
+    "code": "399006",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sz399006"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399006"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399006"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-05"
+  },
+  {
+    "id": "chinext-tr",
+    "name": "创业板R",
+    "code": "399606",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sz399606"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399606"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399606"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-05"
+  },
+  {
+    "id": "star50",
+    "name": "科创50",
+    "code": "000688",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh000688"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000688"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000688"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-07-14"
+  },
+  {
+    "id": "star100",
+    "name": "科创100",
+    "code": "000698",
+    "group": "A股宽基",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh000698"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000698"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000698"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-07-14"
+  },
+  {
+    "id": "information",
+    "name": "全指信息",
+    "code": "000993",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000993"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000993"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000993"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000993"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-05"
+  },
+  {
+    "id": "media",
+    "name": "中证传媒",
+    "code": "399971",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399971"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399971"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399971"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399971"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "broker",
+    "name": "证券公司",
+    "code": "399975",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399975"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399975"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399975"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399975"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-04-23"
+  },
+  {
+    "id": "environment",
+    "name": "中证环保",
+    "code": "000827",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000827"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000827"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000827"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000827"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "solar",
+    "name": "光伏产业",
+    "code": "931151",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "931151"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "2.931151"
+      }
+    ],
+    "note": "",
+    "archives": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh931151"
+      }
+    ],
+    "reference_start": "2021-08-30"
+  },
+  {
+    "id": "newenergy",
+    "name": "新能源",
+    "code": "399808",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399808"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399808"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399808"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399808"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-11-01"
+  },
+  {
+    "id": "defense",
+    "name": "中证军工",
+    "code": "399967",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399967"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399967"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399967"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399967"
+      }
+    ],
+    "note": "",
+    "reference_start": "2008-01-08"
+  },
+  {
+    "id": "allenergy",
+    "name": "全指能源",
+    "code": "000986",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000986"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000986"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000986"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000986"
+      }
+    ],
+    "note": "",
+    "reference_start": "2011-08-08"
+  },
+  {
+    "id": "metals",
+    "name": "国证有色",
+    "code": "399395",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399395"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399395"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399395"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399395"
+      }
+    ],
+    "note": "",
+    "reference_start": "2007-10-15"
+  },
+  {
+    "id": "csienergy",
+    "name": "中证能源",
+    "code": "000928",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000928"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000928"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000928"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000928"
+      }
+    ],
+    "note": "",
+    "reference_start": "2009-08-04"
+  },
+  {
+    "id": "allconsumer",
+    "name": "全指消费",
+    "code": "000990",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000990"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000990"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000990"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000990"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-02-18"
+  },
+  {
+    "id": "csiconsumer",
+    "name": "中证消费",
+    "code": "000932",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000932"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000932"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000932"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000932"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-02-18"
+  },
+  {
+    "id": "food",
+    "name": "食品饮料",
+    "code": "000807",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "000807"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sh000807"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "1.000807"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sh000807"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-02-18"
+  },
+  {
+    "id": "tourism",
+    "name": "中证旅游",
+    "code": "930633",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "930633"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "2.930633"
+      }
+    ],
+    "note": "",
+    "archives": [
+      {
+        "type": "sina_archive",
+        "symbol": "sh930633"
+      }
+    ],
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "realestate",
+    "name": "国证地产",
+    "code": "399393",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399393"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399393"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399393"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399393"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-15"
+  },
+  {
+    "id": "medical",
+    "name": "中证医疗",
+    "code": "399989",
+    "group": "行业主题",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "399989"
+      },
+      {
+        "type": "sina_archive",
+        "symbol": "sz399989"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.399989"
+      },
+      {
+        "type": "tencent",
+        "symbol": "sz399989"
+      }
+    ],
+    "note": "",
+    "reference_start": "2015-06-12"
+  },
+  {
+    "id": "hsi",
+    "name": "恒生指数",
+    "code": "HSI",
+    "group": "港股及中概",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "eastmoney",
+        "symbol": "100.HSI"
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^HSI"
+      }
+    ],
+    "note": "",
+    "reference_start": "1981-07-17"
+  },
+  {
+    "id": "hstech",
+    "name": "恒生科技",
+    "code": "HSTECH",
+    "group": "港股及中概",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_hk",
+        "symbol": "HSTECH"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "100.HSTECH"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-02-17"
+  },
+  {
+    "id": "hshealth",
+    "name": "恒生医疗保健",
+    "code": "HSHCI",
+    "group": "港股及中概",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "sina_hk",
+        "symbol": "HSHCI"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "100.HSHCI"
+      }
+    ],
+    "note": "",
+    "reference_start": "2021-02-18"
+  },
+  {
+    "id": "china-internet50",
+    "name": "中证互联网50",
+    "code": "H30533",
+    "group": "港股及中概",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "csindex",
+        "symbol": "H30533"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "2.H30533"
+      }
+    ],
+    "note": "中证海外中国互联网50指数，按用户确认口径。",
+    "reference_start": "2021-02-16"
+  },
+  {
+    "id": "kweb",
+    "name": "KWEB",
+    "code": "KWEB",
+    "group": "港股及中概",
+    "unit": "美元",
+    "providers": [
+      {
+        "type": "yahoo",
+        "symbol": "KWEB",
+        "scale": 1
+      }
+    ],
+    "note": "ETF，使用价格收盘序列，不与指数点位混用。",
+    "reference_start": "2021-02-17"
+  },
+  {
+    "id": "taiwan",
+    "name": "台湾加权",
+    "code": "TWII",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^twse",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^TWII",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1990-02-12"
+  },
+  {
+    "id": "dow",
+    "name": "道琼斯",
+    "code": "DJI",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^dji",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^DJI",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1929-09-03"
+  },
+  {
+    "id": "sp500",
+    "name": "标普500",
+    "code": "SPX",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^spx",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^GSPC",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1929-09-16"
+  },
+  {
+    "id": "nasdaq",
+    "name": "纳斯达克",
+    "code": "IXIC",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^ndq",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^IXIC",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "2000-03-10"
+  },
+  {
+    "id": "nikkei",
+    "name": "日经225",
+    "code": "N225",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^nkx",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^N225",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1989-12-29"
+  },
+  {
+    "id": "kospi",
+    "name": "韩国综合",
+    "code": "KOSPI",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^kospi",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^KS11",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1994-11-09"
+  },
+  {
+    "id": "dax",
+    "name": "德国DAX",
+    "code": "DAX",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^dax",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^GDAXI",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "2000-03-07"
+  },
+  {
+    "id": "ftse",
+    "name": "英国富时100",
+    "code": "FTSE",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^ukx",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^FTSE",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1999-05-04"
+  },
+  {
+    "id": "cac",
+    "name": "法国CAC40",
+    "code": "CAC",
+    "group": "全球指数",
+    "unit": "点",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "^cac",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "^FCHI",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "2000-09-04"
+  },
+  {
+    "id": "brent",
+    "name": "布伦特原油",
+    "code": "BZ=F",
+    "group": "商品外汇",
+    "unit": "美元/桶",
+    "providers": [
+      {
+        "type": "yahoo",
+        "symbol": "BZ=F",
+        "scale": 1
+      }
+    ],
+    "note": "近月期货连续报价；换月可能产生跳空，非现货或总收益序列。",
+    "reference_start": "2008-07-11"
+  },
+  {
+    "id": "wti",
+    "name": "NYMEX原油",
+    "code": "CL=F",
+    "group": "商品外汇",
+    "unit": "美元/桶",
+    "providers": [
+      {
+        "type": "yahoo",
+        "symbol": "CL=F",
+        "scale": 1
+      }
+    ],
+    "note": "近月期货连续报价；保留2020年负价格，回撤可能超过100%。",
+    "reference_start": "2008-07-11"
+  },
+  {
+    "id": "gas",
+    "name": "华宝油气",
+    "code": "162411",
+    "group": "商品外汇",
+    "unit": "元",
+    "providers": [
+      {
+        "type": "sina_archive",
+        "symbol": "sz162411"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "0.162411"
+      }
+    ],
+    "note": "原图为华宝油气LOF，需基金价格数据，不以天然气代替。",
+    "reference_start": "2014-04-25"
+  },
+  {
+    "id": "xop",
+    "name": "XOP",
+    "code": "XOP",
+    "group": "商品外汇",
+    "unit": "美元",
+    "providers": [
+      {
+        "type": "yahoo",
+        "symbol": "XOP",
+        "scale": 1
+      }
+    ],
+    "note": "油气开采ETF；与华宝油气为不同产品。",
+    "reference_start": "2013-10-21"
+  },
+  {
+    "id": "gold",
+    "name": "伦敦金",
+    "code": "XAUUSD",
+    "group": "商品外汇",
+    "unit": "美元/盎司",
+    "providers": [
+      {
+        "type": "sina_global",
+        "symbol": "XAU"
+      },
+      {
+        "type": "stooq",
+        "symbol": "xauusd",
+        "scale": 1
+      }
+    ],
+    "note": "XAUUSD，美元计价伦敦现货，不以期货替代。",
+    "reference_start": "1980-01-21"
+  },
+  {
+    "id": "silver",
+    "name": "伦敦银",
+    "code": "XAGUSD",
+    "group": "商品外汇",
+    "unit": "美元/盎司",
+    "providers": [
+      {
+        "type": "sina_global",
+        "symbol": "XAG"
+      },
+      {
+        "type": "stooq",
+        "symbol": "xagusd",
+        "scale": 1
+      }
+    ],
+    "note": "XAGUSD，美元计价伦敦现货，不以期货替代。",
+    "reference_start": "1980-02-01"
+  },
+  {
+    "id": "usdjpy",
+    "name": "美元/日元",
+    "code": "USDJPY",
+    "group": "商品外汇",
+    "unit": "日元/美元",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "usdjpy",
+        "scale": 1
+      },
+      {
+        "type": "yahoo",
+        "symbol": "JPY=X",
+        "scale": 1
+      }
+    ],
+    "note": "",
+    "reference_start": "1982-11-04"
+  },
+  {
+    "id": "jpycny",
+    "name": "100日元/人民币",
+    "code": "JPYCNY",
+    "group": "商品外汇",
+    "unit": "元/100日元",
+    "providers": [
+      {
+        "type": "stooq",
+        "symbol": "jpycny",
+        "scale": 100
+      },
+      {
+        "type": "yahoo",
+        "symbol": "JPYCNY=X",
+        "scale": 100
+      }
+    ],
+    "note": "",
+    "reference_start": "2011-09-23"
+  },
+  {
+    "id": "gold-td",
+    "name": "黄金T+D",
+    "code": "AUTD",
+    "group": "商品外汇",
+    "unit": "元/克",
+    "providers": [
+      {
+        "type": "sge",
+        "symbol": "Au(T+D)"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "118.AUTD"
+      }
+    ],
+    "note": "上海黄金交易所黄金延期交收合约。",
+    "reference_start": "2004-08-16"
+  },
+  {
+    "id": "gold-main",
+    "name": "沪金主连",
+    "code": "AU0",
+    "group": "商品外汇",
+    "unit": "元/克",
+    "providers": [
+      {
+        "type": "sina_futures",
+        "symbol": "AU0"
+      }
+    ],
+    "note": "上海期货交易所主力连续报价，换月可能产生跳空。"
+  },
+  {
+    "id": "silver-td",
+    "name": "白银T+D",
+    "code": "AGTD",
+    "group": "商品外汇",
+    "unit": "元/千克",
+    "providers": [
+      {
+        "type": "sge",
+        "symbol": "Ag(T+D)"
+      },
+      {
+        "type": "eastmoney",
+        "symbol": "118.AGTD"
+      }
+    ],
+    "note": "上海黄金交易所白银延期交收合约。",
+    "reference_start": "2006-10-30"
+  },
+  {
+    "id": "silver-main",
+    "name": "沪银主连",
+    "code": "AG0",
+    "group": "商品外汇",
+    "unit": "元/千克",
+    "providers": [
+      {
+        "type": "sina_futures",
+        "symbol": "AG0"
+      }
+    ],
+    "note": "上海期货交易所主力连续报价，换月可能产生跳空。"
+  }
+]

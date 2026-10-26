@@ -1,0 +1,321 @@
+{
+  "catalog_count": 55,
+  "daily_records": 320214,
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 6267,
+      "sha256": "f3c3b0a2b9eeec2e597c0eb5f61c34d3f4c5b92c0040af573d938965984d67b8"
+    },
+    {
+      "path": "src/app.js",
+      "bytes": 20745,
+      "sha256": "39e27979d0f84bbe6dd33516b5d0f8986849fe7269743651192f5f002988aa98"
+    },
+    {
+      "path": "src/data.js",
+      "bytes": 4414,
+      "sha256": "59b49496d969ac359995b0202f24bd6eb7dd2eb4baf951a791257a2ffa083e3b"
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 14900,
+      "sha256": "51f1ac8d4121c92c499e7d031a679e4629cdd8cbbf51921aeba742df9d935f85"
+    },
+    {
+      "path": "data/catalog.json",
+      "bytes": 23726,
+      "sha256": "4db32980dc339ae28d57a92d99089787a4671da2b47c3734e4a36a67b15ff8c4"
+    },
+    {
+      "path": "data/manifest.json",
+      "bytes": 94675,
+      "sha256": "9c6ebbf160e129d3a4ebfe331fb1ec3558589e292c820ef7743c623e7e76d175"
+    },
+    {
+      "path": "data/coverage.csv",
+      "bytes": 4776,
+      "sha256": "670492a843e4afab89ead939ea23790348f1e727cfb8b1548087bb8c4e378e17"
+    },
+    {
+      "path": "data/coverage.json",
+      "bytes": 20800,
+      "sha256": "4815ef848eefe1df2906b2defe818a2360c066cfef1e440c621b00274e807539"
+    },
+    {
+      "path": "data/history/shanghai.json",
+      "bytes": 739328,
+      "sha256": "72888ee9342a0be896c0ebffed47de10908c3d2d7c935ba51d7a80b1d5dd9118"
+    },
+    {
+      "path": "data/history/shenzhen.json",
+      "bytes": 748852,
+      "sha256": "24991979af3d7a0d645ce4415bca6c671b287b50801502b3c49f37d6ccdd9740"
+    },
+    {
+      "path": "data/history/csi300.json",
+      "bytes": 485701,
+      "sha256": "f154f92061391af5f5ec5ec7bbb20b760d44802193fb4c913d3f99f070a9c631"
+    },
+    {
+      "path": "data/history/csi500.json",
+      "bytes": 433234,
+      "sha256": "67f31cf5c373f62f81fe2ab8d93fdde62ce81acf0920d406f68453ec1cf91bf7"
+    },
+    {
+      "path": "data/history/csi1000.json",
+      "bytes": 433391,
+      "sha256": "2ed9de5641e25d1d757a1cfbe4f8324c9f53285e86040a1e3784a5e54a2e82d9"
+    },
+    {
+      "path": "data/history/csi2000.json",
+      "bytes": 256127,
+      "sha256": "64b23f06b8356be74e174ba993f28955dc27202856fadfe6045533aea166b886"
+    },
+    {
+      "path": "data/history/dividend.json",
+      "bytes": 433398,
+      "sha256": "40fcdba82d46266516f1f49efbd15335b526db79667a6abcc11582c447d7a808"
+    },
+    {
+      "path": "data/history/dividend-low100.json",
+      "bytes": 413038,
+      "sha256": "e9b93bef691e0621d2919ece731ba546b1a329d6685d41c0e1465a4eb2168f5b"
+    },
+    {
+      "path": "data/history/dividend-low50.json",
+      "bytes": 413293,
+      "sha256": "2ef9251d2ed58e8b080de46bb38d678616a5e09f4257a482822093cb0cbf347d"
+    },
+    {
+      "path": "data/history/chinext.json",
+      "bytes": 340078,
+      "sha256": "8b54eddb54879498721e1553e1e8f6a26dcc4bf19d3f654083f829973be607fa"
+    },
+    {
+      "path": "data/history/chinext-tr.json",
+      "bytes": 340133,
+      "sha256": "782edcc9c9a4632ee1bba6da5a7a44c9bf74b8928cda4a225861eaeed87b9bcb"
+    },
+    {
+      "path": "data/history/star50.json",
+      "bytes": 140951,
+      "sha256": "fec817bce2e6925d90407c447f908247f4f8b5761f511e0a98f324361581a180"
+    },
+    {
+      "path": "data/history/star100.json",
+      "bytes": 141795,
+      "sha256": "16f0bb1fd0898bd0534697b96833aaa74f78ede4f6b201bf9c1f82d9af40f8f2"
+    },
+    {
+      "path": "data/history/information.json",
+      "bytes": 433506,
+      "sha256": "90e45286261f4a4643a2d12c49fa2173349c20f8cffcbaafefefaf790d86bbf6"
+    },
+    {
+      "path": "data/history/media.json",
+      "bytes": 311897,
+      "sha256": "5f22cff3982219981d33b221fa3bb69f000c7c186c2eb880300daed325306b37"
+    },
+    {
+      "path": "data/history/broker.json",
+      "bytes": 368935,
+      "sha256": "b2406039a4746fb4bd558f5dae02ca1054aafee54c525a467b6172e285e3cf73"
+    },
+    {
+      "path": "data/history/environment.json",
+      "bytes": 294479,
+      "sha256": "eec21e0993ecb92ec3639a7aeb54ad9335a3b387f2f5772755485b19e7486633"
+    },
+    {
+      "path": "data/history/solar.json",
+      "bytes": 258780,
+      "sha256": "d371ed2dfa755217eb009590e6424c45edf71adb5ada6b3f771573fcbecdde15"
+    },
+    {
+      "path": "data/history/newenergy.json",
+      "bytes": 294294,
+      "sha256": "f9a1b428369e63b0b9d3ac25c90dd7bb0d32906f045885fcef7611a8add5f48b"
+    },
+    {
+      "path": "data/history/defense.json",
+      "bytes": 435754,
+      "sha256": "a7bba1fc635a99a2b1d06857bc341e92910dd0cbdc40630792eebb9c0381350c"
+    },
+    {
+      "path": "data/history/allenergy.json",
+      "bytes": 433214,
+      "sha256": "7ddbabbd2aab98d02baebe2ac80510c0f9d2dae0a96a9c38134f0f955e8a34be"
+    },
+    {
+      "path": "data/history/metals.json",
+      "bytes": 293133,
+      "sha256": "31b33d5d80cc4fa0099efbbac90d78cdd4302609f0f25b466240704d2246fe12"
+    },
+    {
+      "path": "data/history/csienergy.json",
+      "bytes": 433386,
+      "sha256": "dca9d8fa0e9c2880a4e0d347ba6174d22447df5074ef8eb45aa49d62f12bac29"
+    },
+    {
+      "path": "data/history/allconsumer.json",
+      "bytes": 441928,
+      "sha256": "df740387d31322c4ddd6e8690db54472d845c2fcbe58d3c61173985859fe6ad8"
+    },
+    {
+      "path": "data/history/csiconsumer.json",
+      "bytes": 442279,
+      "sha256": "64abc70847c18e36889950a47358addb7b9e0c33d978fa36715de5397a830a67"
+    },
+    {
+      "path": "data/history/food.json",
+      "bytes": 443213,
+      "sha256": "1fa79e75dc657ff15471142113a53fe03c64a46319522cc652dcf4c5b15c90be"
+    },
+    {
+      "path": "data/history/tourism.json",
+      "bytes": 354912,
+      "sha256": "8a8a2ebaacf01d34fff15eafccdb9c97cd3e20c66103c8f110466ead576a84b8"
+    },
+    {
+      "path": "data/history/realestate.json",
+      "bytes": 296610,
+      "sha256": "0c1d1db1813e9bf9ce3b029455016a6a455aad184641f722ac8217827053fc47"
+    },
+    {
+      "path": "data/history/medical.json",
+      "bytes": 436620,
+      "sha256": "8236783f9675aabf7c5e7a4635f2d2ff1632a2349951dbd13f66f85651905472"
+    },
+    {
+      "path": "data/history/hsi.json",
+      "bytes": 1068835,
+      "sha256": "b592f172588daa33dbeadb322237d85adac2c984bdb540dc361663fc68c5c008"
+    },
+    {
+      "path": "data/history/hstech.json",
+      "bytes": 129247,
+      "sha256": "dedecf3c628c314b2550e38a8be90724fa32554df272a6d0aa72d1809e89e467"
+    },
+    {
+      "path": "data/history/hshealth.json",
+      "bytes": 7567,
+      "sha256": "daca2b82c9b9eb935e1152e70fee1e1f937f1c6fa50b34a0ae26ae685121dc95"
+    },
+    {
+      "path": "data/history/china-internet50.json",
+      "bytes": 369410,
+      "sha256": "1614f58852026b8348166946b7662f703b6278b4d6b8ccb818523538cb4f7807"
+    },
+    {
+      "path": "data/history/kweb.json",
+      "bytes": 403704,
+      "sha256": "5b7475b08affa336b4ed304ac7e3ed1b1df152122f71faa803437a53864ef1df"
+    },
+    {
+      "path": "data/history/taiwan.json",
+      "bytes": 804494,
+      "sha256": "a78d34f7b5d81a28f2b35f1d0a61b352e12c1287b1dd7542e203152187784dcb"
+    },
+    {
+      "path": "data/history/dow.json",
+      "bytes": 976130,
+      "sha256": "25324f9c1b8dfb183075850b1c9d6e484264b39d9a6de3f44831cdbf48cf4f5e"
+    },
+    {
+      "path": "data/history/sp500.json",
+      "bytes": 2994588,
+      "sha256": "61a8623a8ef625b3a0b8cd91d9897a2485fb1289bd1d1eef0fc3e3ec29b5ce01"
+    },
+    {
+      "path": "data/history/nasdaq.json",
+      "bytes": 1652954,
+      "sha256": "898aa50a5aac62058fc29c6bfa4cf82b4a5bb55171b4f91ecc247b076a8a6e30"
+    },
+    {
+      "path": "data/history/nikkei.json",
+      "bytes": 1703118,
+      "sha256": "466902693592c6e8dee37028162faa3d9338e5cc84e7ddfee8e3e769a675a317"
+    },
+    {
+      "path": "data/history/kospi.json",
+      "bytes": 875754,
+      "sha256": "4ee389fa74743d9eb3be99ef4b2cbf5634b5d98e1a677744cea655950a374257"
+    },
+    {
+      "path": "data/history/dax.json",
+      "bytes": 1126892,
+      "sha256": "d3e21ab1361aaefc141fa05a53e234f85646c647e6f3b060443ec04b6acb6802"
+    },
+    {
+      "path": "data/history/ftse.json",
+      "bytes": 1188041,
+      "sha256": "5ee7c99b2fd4c7fcf0fdf76879f6a2b1c3a7c83f417eb13aa3943f347e82626f"
+    },
+    {
+      "path": "data/history/cac.json",
+      "bytes": 1053601,
+      "sha256": "e9b2e963e006182663cd6d11fe12527e00228aeac18000bcf6b914a29b92d928"
+    },
+    {
+      "path": "data/history/brent.json",
+      "bytes": 578365,
+      "sha256": "65e3ffa432bee41ea39cc33cf29f053c40c77a9efa604c4f665ef080a2a0a622"
+    },
+    {
+      "path": "data/history/wti.json",
+      "bytes": 786504,
+      "sha256": "f9780d87258ee4017a7ba52e5b34e8619ff80f72522d90fafca926d1a1e11cfa"
+    },
+    {
+      "path": "data/history/gas.json",
+      "bytes": 246853,
+      "sha256": "a77abb37c44478eccfb5ecb93c11ee6cb64c9a685a56a9c35e6916a823121882"
+    },
+    {
+      "path": "data/history/xop.json",
+      "bytes": 624712,
+      "sha256": "d14775e8d5bda7093cafb99e9979a7faef8511bc9b285386c7d5a4bc4c7e4c1c"
+    },
+    {
+      "path": "data/history/gold.json",
+      "bytes": 419808,
+      "sha256": "cbec105387c328f75b6534046641965e385fc1a006c73458e44ddfebd6bc4412"
+    },
+    {
+      "path": "data/history/silver.json",
+      "bytes": 396186,
+      "sha256": "61e3228e77e3ff6047e4875840e8a9a1cb2f991ee85880146aa4e1bd282e92b5"
+    },
+    {
+      "path": "data/history/usdjpy.json",
+      "bytes": 958413,
+      "sha256": "c8b60cbd8f5da43855e31b46d25f5b6d056b2349a8597840bfcdeca65788ebd3"
+    },
+    {
+      "path": "data/history/jpycny.json",
+      "bytes": 726298,
+      "sha256": "952deb1b30264106613c5aea366d25d10a08772692cc31e07e21c3092bcd1482"
+    },
+    {
+      "path": "data/history/gold-td.json",
+      "bytes": 184682,
+      "sha256": "b0e939401cfd413a6f97a94c7f6faf0f0af7b87c71c310649ee1df2d94204acc"
+    },
+    {
+      "path": "data/history/gold-main.json",
+      "bytes": 351586,
+      "sha256": "2aafdbef358c9fbbae7d225418defb902fb55f465ef0f5431bd45ef4e16e861f"
+    },
+    {
+      "path": "data/history/silver-td.json",
+      "bytes": 188573,
+      "sha256": "bcab3ae5791ded770c02f893f60fab72594cacc3a1f0b783564a00c186d25244"
+    },
+    {
+      "path": "data/history/silver-main.json",
+      "bytes": 276712,
+      "sha256": "e87258c010fad6f1bd06fac83af3e617425082e75c8a3afbfc64a988c7871262"
+    }
+  ]
+}
