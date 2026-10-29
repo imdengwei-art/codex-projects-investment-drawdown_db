@@ -1,17 +1,30 @@
 // All calculations use full, un-interpolated source observations.
 const DAY=86400000;
+export const PRICE_BASES=['close','intraday','weekly','monthly'];
+export const isPeriodic=basis=>basis==='weekly'||basis==='monthly';
+export function periodCloses(points,basis){
+ if(!isPeriodic(basis))throw Error('Expected weekly or monthly price basis');
+ const periods=new Map();
+ for(const p of points){
+  let key=p.date.slice(0,7);
+  if(basis==='weekly'){const day=new Date(p.date+'T00:00:00Z');day.setUTCDate(day.getUTCDate()-(day.getUTCDay()+6)%7);key=day.toISOString().slice(0,10);}
+  periods.set(key,p);
+ }
+ return [...periods.values()];
+}
+const annualBasis=basis=>({intraday:'日内',close:'收盘',weekly:'周收盘',monthly:'月收盘'})[basis];
 export const daysBetween=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/DAY);
 export function eligible(points,basis='close'){
- if(!['close','intraday'].includes(basis))throw Error('Unknown price basis '+basis);
- return basis==='close'?points:points.filter(p=>['high','low','value'].every(k=>Number.isFinite(p[k]))&&p.low<=p.value+1e-7&&p.high>=p.value-1e-7&&p.low<=p.high);
+ if(!PRICE_BASES.includes(basis))throw Error('Unknown price basis '+basis);
+ return isPeriodic(basis)?periodCloses(points,basis):basis==='close'?points:points.filter(p=>['high','low','value'].every(k=>Number.isFinite(p[k]))&&p.low<=p.value+1e-7&&p.high>=p.value-1e-7&&p.low<=p.high);
 }
-const at=(p,basis='close',side='high')=>({date:p.date,value:basis==='close'?p.value:p[side]});
+const at=(p,basis='close',side='high')=>({date:p.date,value:basis==='intraday'?p[side]:p.value});
 export function maximumDrawdown(points,basis='close'){
  const bars=eligible(points,basis);let peak=null,best=null;
  if(basis==='intraday'&&bars.length<2)return null;
  for(const p of bars){
   const high=at(p,basis,'high'),low=at(p,basis,'low');
-  if(basis==='close'&&high.value>0&&(!peak||high.value>peak.value))peak=high;
+  if(basis!=='intraday'&&high.value>0&&(!peak||high.value>peak.value))peak=high;
   if(peak){const drawdown=low.value/peak.value-1;if(drawdown<=0&&(!best||drawdown<best.drawdown))best={peak,trough:low,drawdown,days:daysBetween(peak.date,low.date)};}
   if(basis==='intraday'&&high.value>0&&(!peak||high.value>peak.value))peak=high;
  }
@@ -23,7 +36,7 @@ export function stages(points,threshold=.15,recovery=.2,basis='close'){
   const high=at(p,basis,'high'),low=at(p,basis,'low');
   if(!peak){if(high.value>0){peak=high;trough=low;}continue;}
   if(!falling){
-   if(basis==='close'&&high.value>=peak.value){peak=high;trough=low;}
+   if(basis!=='intraday'&&high.value>=peak.value){peak=high;trough=low;}
    else if(low.value<=peak.value*(1-threshold)){falling=true;trough=low;}
    else if(high.value>peak.value){peak=high;trough=low;}
   }else{
@@ -49,7 +62,7 @@ export function rebounds(points,threshold=.15,recovery=.2,basis='close'){
 }
 export function since2015(points,basis='close'){
  const year=eligible(points,basis).filter(p=>p.date>='2015-01-01'&&p.date<='2015-12-31');
- if(year.length){const peak=year.reduce((a,b)=>at(b,basis).value>at(a,basis).value?b:a);return {points:points.filter(p=>p.date>=peak.date),note:'自2015年'+(basis==='intraday'?'日内':'收盘')+'高点起',start:peak.date};}
+ if(year.length){const peak=year.reduce((a,b)=>at(b,basis).value>at(a,basis).value?b:a);return {points:points.filter(p=>p.date>=peak.date),note:'自2015年'+annualBasis(basis)+'高点起',start:peak.date};}
  if(basis==='intraday'&&points.some(p=>p.date>='2015-01-01'&&p.date<='2015-12-31'))return {points:[],note:'2015年高低价缺失，无法确定2015高点；可切换收盘口径',start:null};
  const later=points.filter(p=>p.date>'2015-12-31');
  return {points:later,note:'2015年无可用'+(basis==='intraday'?'高低价':'')+'记录，使用后续可用历史起点',start:later[0]?.date??null};
@@ -64,10 +77,10 @@ export function targetLevel(peak,current,depth,warningDistance=.2){
 export function summary(points,mode='all',basis='close'){
  const window=mode==='2015'?since2015(points,basis):{points,note:'数据源可用历史',start:points[0]?.date};
  const data=window.points;if(!data.length)return null;
- const bars=eligible(data,basis),peak=bars.map(p=>at(p,basis)).reduce((a,b)=>!a||b.value>a.value?b:a,null),latest=at(data.at(-1)),previous=data.at(-2);
+ const bars=eligible(data,basis),closes=isPeriodic(basis)?bars:data,peak=bars.map(p=>at(p,basis)).reduce((a,b)=>!a||b.value>a.value?b:a,null),latest=at(closes.at(-1)),previous=closes.at(-2);
  const targets=Object.fromEntries([70,80].map(depth=>[String(depth),targetLevel(peak?.value,latest.value,depth/100)]));
  const states=Object.values(targets).map(t=>t.status),alert=states.includes('reached')?'reached':states.includes('near')?'near':states.includes('far')?'far':'unavailable';
- return {mdd:maximumDrawdown(data,basis),peak,latest,start:data[0].date,end:latest.date,count:data.length,note:window.note,basis,basisCount:bars.length,excludedOhlcCount:data.length-bars.length,calculationStart:bars[0]?.date??null,targets,alert,currentDrawdown:peak?.value>0?latest.value/peak.value-1:null,latestChange:previous?.value>0?latest.value/previous.value-1:null};
+ return {mdd:maximumDrawdown(data,basis),peak,latest,start:data[0].date,end:latest.date,count:data.length,note:window.note,basis,basisCount:bars.length,excludedOhlcCount:basis==='intraday'?data.length-bars.length:0,calculationStart:bars[0]?.date??null,targets,alert,currentDrawdown:peak?.value>0?latest.value/peak.value-1:null,latestChange:previous?.value>0?latest.value/previous.value-1:null};
 }
 export function dateWindow(points,start,end){
  const valid=date=>/^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date;

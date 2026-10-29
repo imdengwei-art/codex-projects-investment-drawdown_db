@@ -1,4 +1,4 @@
-import {maximumDrawdown,stages,rebounds,since2015,summary,presetWindow,dateWindow,loadCatalog,loadManifest,loadHistory,daysBetween} from './data.js?v=a3c6b4e39a49';
+import {maximumDrawdown,stages,rebounds,since2015,summary,presetWindow,dateWindow,PRICE_BASES,isPeriodic,periodCloses,loadCatalog,loadManifest,loadHistory,daysBetween} from './data.js?v=10ac5a0ac202';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(v,d)=>Number.isFinite(v)?v.toLocaleString('en-US',{minimumFractionDigits:d??(Math.abs(v)<10?4:2),maximumFractionDigits:d??(Math.abs(v)<10?4:2)}):'—';
@@ -14,7 +14,10 @@ const hasGap=id=>hasHistory(id)&&assetById(id)?.reference_start&&meta(id).first>
 const getSummary=(id,range=state.tableRange,basis=state.tableBasis)=>range==='custom'?state.tableSummaries.get(id)?.[basis]??null:meta(id).summaries_by_basis?.[basis]?.[range]??(basis==='close'?meta(id).summaries?.[range]:null);
 const tableRangeLabel=()=>state.tableRange==='custom'?`自选日期：${state.tableStart} — ${state.tableEnd}`:state.tableRange==='all'?'历史至今':'2015高点至今';
 const tableLatest=(id,s)=>s?.latest??(state.tableRange==='custom'?null:getSummary(id,'all','close')?.latest);
-const basisName=basis=>basis==='intraday'?'日内高低（跨日）':'日收盘';
+const basisName=basis=>({intraday:'日内高低（跨日）',close:'日收盘',weekly:'周收盘价',monthly:'月收盘价'})[basis];
+const pointName=basis=>basis==='weekly'?'周收盘点':basis==='monthly'?'月收盘点':'交易日';
+const trendName=basis=>isPeriodic(basis)?basisName(basis):'日收盘';
+const periodNote=basis=>basis==='weekly'?'周一至周日取末次交易日收盘；未结束的末周按截至日快照暂估':basis==='monthly'?'自然月取末次交易日收盘；未结束的末月按截至日快照暂估':'';
 const alertNames={reached:'已达到',near:'临近目标',far:'未临近',unavailable:'不可计算'};
 function alertMarkup(target,depth){const status=target?.status??'unavailable';return `<div class="level-line"><span class="level-label">${depth}%</span><span class="target-alert ${status}">${alertNames[status]}</span></div>`;}
 function remainingMarkup(target,depth){return `<div class="level-line"><span class="level-label">${depth}%</span><span>${target?.status==='reached'?'已达 · 0.00%':pct(target?.remainingDrop)}</span></div>`;}
@@ -38,7 +41,7 @@ async function applyTableDates(){
    const asset=assets[cursor++];
    try{
     const points=await loadHistory(asset.id);if(token!==state.tableLoadToken)return;
-    const window=dateWindow(points,start,end).points;results.set(asset.id,{close:summary(window,'all','close'),intraday:summary(window,'all','intraday')});
+    const window=dateWindow(points,start,end).points;results.set(asset.id,Object.fromEntries(PRICE_BASES.map(basis=>[basis,summary(window,'all',basis)])));
    }catch(error){failures.push(asset.name);}
    if(token===state.tableLoadToken)$('#table-date-status').textContent=`正在读取历史并计算 ${++completed} / ${assets.length}…`;
   }
@@ -89,12 +92,12 @@ function renderTable(){
  state.rows=filteredRows();const total=state.rows.length,pages=Math.max(1,Math.ceil(total/state.pageSize));state.page=Math.min(state.page,pages);
  const custom=state.tableRange==='custom',ready=state.rows.filter(a=>custom?getSummary(a.id)?.count:hasHistory(a.id));
  $('#table-count').textContent=`${total} 个标的 · ${ready.length} 个${custom?'区间':''}有数据`;
- $('#table-period').textContent=(custom?tableRangeLabel():state.tableRange==='all'?'历史至今：数据源可用范围':'2015高点至今：从各标的当年所选口径高点起算')+' · '+basisName(state.tableBasis);
+ $('#table-period').textContent=(custom?tableRangeLabel():state.tableRange==='all'?'历史至今：数据源可用范围':'2015高点至今：从各标的当年所选口径高点起算')+' · '+basisName(state.tableBasis)+(isPeriodic(state.tableBasis)?' · '+periodNote(state.tableBasis):'');
  $('#table-alert-context').textContent=custom?'预警按区间末快照计算 · 非交易日使用区间内最近交易日':'预警：距目标仍需下跌 ≤20% · 最新入库快照';
  $('#table-latest-heading').textContent=custom?'区间末点位 / 快照日期':'最新点位 / 快照日期';
  document.querySelectorAll('#table-range button').forEach(b=>b.classList.toggle('selected',b.dataset.range===state.tableRange));
  $('#table-basis-label').textContent=basisName(state.tableBasis);
- $('#peak-heading').textContent='最大回撤峰点 / '+(state.tableBasis==='intraday'?'最高价':'收盘');$('#trough-heading').textContent='最大回撤谷点 / '+(state.tableBasis==='intraday'?'最低价':'收盘');
+ $('#peak-heading').textContent='最大回撤峰点 / '+(state.tableBasis==='intraday'?'最高价':isPeriodic(state.tableBasis)?basisName(state.tableBasis):'收盘');$('#trough-heading').textContent='最大回撤谷点 / '+(state.tableBasis==='intraday'?'最低价':isPeriodic(state.tableBasis)?basisName(state.tableBasis):'收盘');
  $('#page-label').textContent=`${state.page} / ${pages}`;$('#previous-page').disabled=state.page<=1;$('#next-page').disabled=state.page>=pages;
  const records=ready.reduce((n,a)=>n+(custom?getSummary(a.id).count:meta(a.id).count),0),dates=ready.map(a=>custom?getSummary(a.id).start:meta(a.id).first).sort();
  $('#metrics').innerHTML=[[custom?'区间有数据标的':'已入库标的',`${ready.length} <small>/ ${total}</small>`,'当前表格筛选范围'],[custom?'区间日线总数':'历史日线总数',records.toLocaleString(),'原始日线 · 无模拟补点'],[custom?'最早区间记录':'最早源历史起点',dates[0]??'—','具体计算起点依价格口径显示'],[custom?'区间暂无数据':'历史待补齐',String(custom?total-ready.length:state.rows.filter(a=>!hasHistory(a.id)||hasGap(a.id)).length),custom?'所选日期内没有日线的标的':'含未入库与早期回溯缺口']].map(([a,b,c])=>`<div class="metric"><div>${a}</div><strong>${b}</strong><p>${c}</p></div>`).join('');
@@ -102,7 +105,7 @@ function renderTable(){
  $('#table-body').innerHTML=rows.map(asset=>{
   const m=meta(asset.id),s=getSummary(asset.id),d=s?.mdd,latest=tableLatest(asset.id,s);
   const reason=custom&&!s?'所选日期内无可用日线':state.tableBasis==='intraday'?(state.tableRange==='2015'&&!s?'无法确定2015高点，可切换收盘':'有效日内高低价不足，可切换收盘'):'此范围无可用记录';
-  return `<tr class="${hasHistory(asset.id)?'':'unavailable-row'}" ${hasHistory(asset.id)?`data-asset="${asset.id}" data-alert-state="${s?.alert??'unavailable'}" tabindex="0" role="button" aria-label="查看${esc(asset.name)}走势"`:''}><td><b>${esc(asset.name)}</b><small>${esc(asset.code)} · ${esc(asset.group)}</small></td><td class="strong decline-value">${pct(d?.drawdown)}${!d?`<small class="calculation-note">${reason}</small>`:''}</td><td>${d?.peak.date??'—'}<small class="peak">${fmt(d?.peak.value)}</small></td><td>${d?.trough.date??'—'}<small class="teal">${fmt(d?.trough.value)}</small></td><td>${d?.days.toLocaleString()??'—'} <small class="inline">天</small><small>峰值 → 谷值</small></td><td class="target-baseline">${fmt(s?.peak?.value)}<small>${s?.peak?.date??'—'}</small><small>所选范围可用最高点</small></td><td class="target-levels">${levelsMarkup(s)}</td><td class="target-remaining">${[70,80].map(depth=>remainingMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="strong">${fmt(latest?.value)}<small>${latest?.date??'—'} · ${esc(asset.unit)}</small><small>${custom?'区间末快照':'行情快照'}</small></td><td class="target-alerts">${[70,80].map(depth=>alertMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="source-info">${m.first??'—'} — ${m.last??'—'}<small>${esc(sourceName[m.source?.provider]??'—')} · ${(m.count??0).toLocaleString()}日</small>${s?`<small class="coverage-note">计算起点 ${s.calculationStart??'无有效高低价'}${s.excludedOhlcCount?` · 排除 ${s.excludedOhlcCount} 日缺失/异常高低价`:''}</small>`:''}${custom?`<small class="coverage-note">${s?`区间 ${s.start} — ${s.end} · ${s.count.toLocaleString()}日`:'所选日期内无可用日线'}</small>`:''}${state.tableRange==='2015'&&s?`<small class="coverage-note">${esc(s.note)}</small>`:''}</td><td>${statusHTML(asset.id)}</td></tr>`;
+  return `<tr class="${hasHistory(asset.id)?'':'unavailable-row'}" ${hasHistory(asset.id)?`data-asset="${asset.id}" data-alert-state="${s?.alert??'unavailable'}" tabindex="0" role="button" aria-label="查看${esc(asset.name)}走势"`:''}><td><b>${esc(asset.name)}</b><small>${esc(asset.code)} · ${esc(asset.group)}</small></td><td class="strong decline-value">${pct(d?.drawdown)}${!d?`<small class="calculation-note">${reason}</small>`:''}</td><td>${d?.peak.date??'—'}<small class="peak">${fmt(d?.peak.value)}</small></td><td>${d?.trough.date??'—'}<small class="teal">${fmt(d?.trough.value)}</small></td><td>${d?.days.toLocaleString()??'—'} <small class="inline">天</small><small>峰值 → 谷值</small></td><td class="target-baseline">${fmt(s?.peak?.value)}<small>${s?.peak?.date??'—'}</small><small>所选范围可用最高点</small></td><td class="target-levels">${levelsMarkup(s)}</td><td class="target-remaining">${[70,80].map(depth=>remainingMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="strong">${fmt(latest?.value)}<small>${latest?.date??'—'} · ${esc(asset.unit)}</small><small>${isPeriodic(state.tableBasis)?(state.tableBasis==='weekly'?'末周截至日快照':'末月截至日快照'):custom?'区间末快照':'行情快照'}</small></td><td class="target-alerts">${[70,80].map(depth=>alertMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="source-info">${m.first??'—'} — ${m.last??'—'}<small>${esc(sourceName[m.source?.provider]??'—')} · ${(m.count??0).toLocaleString()}日</small>${s&&isPeriodic(state.tableBasis)?`<small>${s.basisCount.toLocaleString()} 个${pointName(state.tableBasis)}</small>`:''}${s?`<small class="coverage-note">计算起点 ${s.calculationStart??'无有效高低价'}${s.excludedOhlcCount?` · 排除 ${s.excludedOhlcCount} 日缺失/异常高低价`:''}</small>`:''}${custom?`<small class="coverage-note">${s?`区间 ${s.start} — ${s.end} · ${s.count.toLocaleString()}日`:'所选日期内无可用日线'}</small>`:''}${state.tableRange==='2015'&&s?`<small class="coverage-note">${esc(s.note)}</small>`:''}</td><td>${statusHTML(asset.id)}</td></tr>`;
  }).join('')||'<tr><td colspan="12" class="empty">没有匹配的标的，请调整筛选。</td></tr>';
  syncFloatingHeader?.();
 }
@@ -119,7 +122,7 @@ function clearPlot(message,title='暂未取得历史数据'){
 async function selectAsset(id,preset=state.preset,basis=state.chartBasis,dates=null){
  const customDates=preset==='custom'?(dates??{start:$('#date-start').value,end:$('#date-end').value}):null;
  state.asset=id;state.preset=preset;state.chartBasis=basis;$('#chart-basis').value=basis;const token=++state.loadToken,asset=assetById(id),m=meta(id);state.points=[];state.visible=[];
- $('#chart-asset').value=id;$('#chart-title').innerHTML=`${esc(asset.name)} <span>${esc(asset.code)}</span>`;$('#chart-subtitle').textContent=`${asset.group} · ${asset.unit} · 走势为收盘 · 回撤按${basisName(state.chartBasis)}`;
+ $('#chart-asset').value=id;$('#chart-title').innerHTML=`${esc(asset.name)} <span>${esc(asset.code)}</span>`;$('#chart-subtitle').textContent=`${asset.group} · ${asset.unit} · 走势为${trendName(state.chartBasis)} · 回撤按${basisName(state.chartBasis)}`;
  $('#chart-summary').textContent='';$('#chart-quality').textContent='';$('#range-error').textContent='';$('#date-start').value='';$('#date-end').value='';$('#export-chart').disabled=true;
  if(!hasHistory(id)){clearPlot((m.errors??[]).map(e=>`${sourceName[e.provider]??e.provider}：${e.blocked?'网络访问受限':'未返回可用历史'}`).join('；')||'该标的尚未执行成功的历史导入。');$('#chart-quality').textContent=asset.note;return;}
  clearPlot('正在加载已入库的完整日线…','加载中');
@@ -144,12 +147,14 @@ function drawingPoints(points){
 }
 function renderChart(){
  if(!state.points.length)return;
- const start=$('#date-start').value,end=$('#date-end').value,points=state.points.filter(p=>p.date>=start&&p.date<=end);
+ const start=$('#date-start').value,end=$('#date-end').value,raw=state.points.filter(p=>p.date>=start&&p.date<=end),points=isPeriodic(state.chartBasis)?periodCloses(raw,state.chartBasis):raw;
+ $('#export-chart').textContent=isPeriodic(state.chartBasis)?`↓ ${basisName(state.chartBasis)} CSV`:'↓ 日线 CSV';
+ $('#period-method-hint').textContent=isPeriodic(state.chartBasis)?periodNote(state.chartBasis):'2015模式从当年所选口径高点起算 · 走势线保留每日收盘';
  $('#tooltip').style.display='none';
- if(!start||!end||start>end||points.length<2){$('#range-error').textContent='请选择包含至少两个交易日的有效日期范围。';$('#chart-summary').textContent='';clearPlot('该时间窗口没有足够的交易日数据。','无法计算所选区间');$('#export-chart').disabled=true;return;}
+ if(!start||!end||start>end||points.length<2){$('#range-error').textContent=`请选择包含至少两个${pointName(state.chartBasis)}的有效日期范围。`;$('#chart-summary').textContent='';clearPlot(`该时间窗口没有足够的${pointName(state.chartBasis)}。`,'无法计算所选区间');$('#export-chart').disabled=true;return;}
  state.visible=points;$('#range-error').textContent='';$('.plot-wrap .chart-empty')?.remove();$('#plot').style.display='block';$('#export-chart').disabled=false;
  const asset=assetById(state.asset),m=meta(state.asset),dd=maximumDrawdown(points,state.chartBasis),threshold=Number($('#decline-threshold').value),recovery=Number($('#recovery-threshold').value),ss=stages(points,threshold,recovery,state.chartBasis),rs=rebounds(points,threshold,recovery,state.chartBasis),showDecline=$('#decline-toggle').checked,showRebound=$('#rebound-toggle').checked,showMax=showDecline&&$('#max-toggle').checked&&dd,showStages=$('#stage-toggle').checked;
- $('#chart-subtitle').textContent=`${asset.group} · ${asset.unit} · 走势为收盘 · 回撤按${basisName(state.chartBasis)}`;
+ $('#chart-subtitle').textContent=`${asset.group} · ${asset.unit} · 走势为${trendName(state.chartBasis)} · 回撤按${basisName(state.chartBasis)}`;
  $('#chart-summary').className=showDecline?'':showRebound?'chart-summary-rebound':'chart-summary-neutral';
  $('#chart-summary').innerHTML=showDecline&&dd?`<span class="summary-label">所选区间最大回撤</span><strong>${pct(dd.drawdown)}</strong><span>${dd.peak.date} <i>→</i> ${dd.trough.date}</span><span class="summary-days">所用 ${dd.days.toLocaleString()} 天</span>`:showRebound?'<span class="rebound-color">反弹区间</span><span>以所选口径的阶段谷底为基准，标记至后续阶段高点。</span>':showDecline&&!dd?'<span>该口径缺少有效高低价，暂不计算回撤；可切换日收盘。</span>':'<span>当前仅展示价格走势。</span>';
  const W=1120,H=430,L=68,R=35,T=55,B=48,minValue=points.reduce((n,p)=>Math.min(n,p.value),Math.min(dd?.trough.value??Infinity,...ss.map(s=>s.trough.value))),maxValue=points.reduce((n,p)=>Math.max(n,p.value),Math.max(dd?.peak.value??-Infinity,...rs.map(r=>r.peak.value))),span=maxValue-minValue||Math.max(Math.abs(maxValue)*.1,1),min=minValue-span*.13,max=maxValue+span*.15,first=Date.parse(points[0].date),last=Date.parse(points.at(-1).date),x=p=>L+(Date.parse(p.date)-first)/(last-first)*(W-L-R),y=p=>T+(max-p.value)/(max-min)*(H-T-B);
@@ -174,13 +179,13 @@ function renderChart(){
  $('#plot').innerHTML=svg;
  const records=[...(showDecline?ss.map(s=>({...s,type:'decline',start:s.peak,end:s.trough,change:pct(s.drawdown),status:s.ongoing?'区间末尚未确认反弹':s.nonpositiveBase?'负价后转正':'已反弹分段'})):[]),...(showRebound?rs.map(r=>({...r,type:'rebound',start:r.trough,end:r.peak,change:r.nonpositiveBase?'不计%':'+'+pct(r.gain),status:r.nonpositiveBase?'谷底≤0，百分比不定义':'谷底至后续高点'})):[])].sort((a,b)=>a.start.date.localeCompare(b.start.date));
  $('#stage-count').textContent=`${records.length} 段`;$('#stage-list').innerHTML=records.length?records.map((s,i)=>`<div class="stage ${s.type}"><span class="stage-number">${String(i+1).padStart(2,'0')}</span><div><b>${s.type==='decline'?'↘ 下跌':'↗ 反弹'} · ${s.start.date.slice(0,4)} — ${s.end.date.slice(0,4)}</b><small>${s.start.date} → ${s.end.date}</small></div><strong>${s.change}</strong><span>${s.days.toLocaleString()} 天</span><em>${s.status}</em></div>`).join(''):'<p class="empty">当前展示项和阈值下，没有符合条件的阶段区间。</p>';
- $('#visible-period').textContent=`${points[0].date} — ${points.at(-1).date} · ${points.length.toLocaleString()} 个交易日`;
+ $('#visible-period').textContent=`${points[0].date} — ${points.at(-1).date} · ${points.length.toLocaleString()} 个${pointName(state.chartBasis)}`;
  $('#chart-source').textContent=`${sourceName[m.source?.provider]??'—'} · ${m.source?.symbol??asset.code} · ${asset.unit}（手机可横向滑动图表）`;
- const scope=summary(points,'all',state.chartBasis);const notes=[asset.note,scope?.excludedOhlcCount?`${basisName(state.chartBasis)}计算排除 ${scope.excludedOhlcCount} 日缺失/异常高低价，有效计算起点 ${scope.calculationStart??'暂无'}。`:'',hasGap(asset.id)?`早期缺口：参考范围从 ${asset.reference_start} 起，当前来源仅从 ${m.first} 起；此处最大回撤仅代表已覆盖区间。`:'',m.source?.archive_sources?.length?'早期区间补充自新浪历史归档；重叠日期优先保留主来源。':'',`可用历史 ${m.first} — ${m.last}；不保证覆盖指数基日起全部回溯。`,state.preset==='2015'?since2015(state.points,state.chartBasis).note:'',m.ohlc_warning_count?`${m.ohlc_warning_count} 条源记录高低价关系异常；日内模式已排除，收盘模式保留原始close字段。`:'',m.status==='stale'?'数据尚未更新至近期，当前展示保留的已验证历史。':'',points.some(p=>p.value<=0)?'包含零价或负价：跌幅可能超过100%，非正谷底不计算反弹百分比。':''];
+ const scope=summary(raw,'all',state.chartBasis);const notes=[asset.note,periodNote(state.chartBasis),scope?.excludedOhlcCount?`${basisName(state.chartBasis)}计算排除 ${scope.excludedOhlcCount} 日缺失/异常高低价，有效计算起点 ${scope.calculationStart??'暂无'}。`:'',hasGap(asset.id)?`早期缺口：参考范围从 ${asset.reference_start} 起，当前来源仅从 ${m.first} 起；此处最大回撤仅代表已覆盖区间。`:'',m.source?.archive_sources?.length?'早期区间补充自新浪历史归档；重叠日期优先保留主来源。':'',`可用历史 ${m.first} — ${m.last}；不保证覆盖指数基日起全部回溯。`,state.preset==='2015'?since2015(state.points,state.chartBasis).note:'',m.ohlc_warning_count?`${m.ohlc_warning_count} 条源记录高低价关系异常；日内模式已排除，收盘模式保留原始close字段。`:'',m.status==='stale'?'数据尚未更新至近期，当前展示保留的已验证历史。':'',points.some(p=>p.value<=0)?'包含零价或负价：跌幅可能超过100%，非正谷底不计算反弹百分比。':''];
  $('#chart-quality').textContent=notes.filter(Boolean).join(' ');
  $('#plot').onpointermove=e=>{
   const rect=$('#plot').getBoundingClientRect(),sx=(e.clientX-rect.left)/rect.width*W,point=points.reduce((a,b)=>Math.abs(x(a)-sx)<Math.abs(x(b)-sx)?a:b),line=$('#crosshair');
-  line.setAttribute('x1',x(point));line.setAttribute('x2',x(point));line.setAttribute('visibility','visible');const tip=$('#tooltip'),wrap=$('.plot-wrap'),wrapRect=wrap.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.min(wrap.scrollLeft+wrap.clientWidth-200,Math.max(wrap.scrollLeft,e.clientX-wrapRect.left+wrap.scrollLeft+12))+'px';tip.style.top='45px';tip.innerHTML=`${point.date}<br><b>${esc(asset.name)} ${fmt(point.value)}</b><br><small>日线值 · ${esc(asset.unit)}</small>`;
+  line.setAttribute('x1',x(point));line.setAttribute('x2',x(point));line.setAttribute('visibility','visible');const tip=$('#tooltip'),wrap=$('.plot-wrap'),wrapRect=wrap.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.min(wrap.scrollLeft+wrap.clientWidth-200,Math.max(wrap.scrollLeft,e.clientX-wrapRect.left+wrap.scrollLeft+12))+'px';tip.style.top='45px';tip.innerHTML=`${point.date}<br><b>${esc(asset.name)} ${fmt(point.value)}</b><br><small>${isPeriodic(state.chartBasis)?basisName(state.chartBasis):'日线值'} · ${esc(asset.unit)}</small>`;
  };
  $('#plot').onpointerleave=()=>{$('#tooltip').style.display='none';$('#crosshair')?.setAttribute('visibility','hidden');};
 }
@@ -196,8 +201,13 @@ function bind(){
  $('#chart-asset').onchange=e=>selectAsset(e.target.value);$('#chart-range').onclick=e=>{if(e.target.dataset.range)setRange(e.target.dataset.range);};
  $('#apply-dates').onclick=()=>{state.preset='custom';document.querySelectorAll('#chart-range button').forEach(b=>b.classList.remove('selected'));renderChart();};
  for(const id of ['#decline-toggle','#rebound-toggle','#max-toggle','#stage-toggle','#decline-threshold','#recovery-threshold'])$(id).onchange=renderChart;
- $('#export-table').onclick=()=>downloadCSV('观澜-回撤监控.csv',[['标的','代码','市场','时间维度','价格口径','最大回撤','最大回撤峰值日期','最大回撤峰值','最大回撤谷值日期','最大回撤谷值','所用自然日','目标基准最高点','目标基准日期','跌70%目标点位','距70%仍需下跌','70%预警','跌80%目标点位','距80%仍需下跌','80%预警','最新快照日期','最新点位','单位','源历史起点','源历史末日','计算起点','来源','数据状态'],...state.rows.map(a=>{const m=meta(a.id),s=getSummary(a.id),latest=tableLatest(a.id,s),d=s?.mdd,t70=s?.targets?.['70'],t80=s?.targets?.['80'];return [a.name,a.code,a.group,tableRangeLabel(),basisName(state.tableBasis),pct(d?.drawdown),d?.peak.date,d?.peak.value,d?.trough.date,d?.trough.value,d?.days,s?.peak?.value,s?.peak?.date,t70?.level,pct(t70?.remainingDrop),alertNames[t70?.status??'unavailable'],t80?.level,pct(t80?.remainingDrop),alertNames[t80?.status??'unavailable'],latest?.date,latest?.value,a.unit,m.first,m.last,s?.calculationStart,sourceName[m.source?.provider],statusName[m.status]];})]);
- $('#export-chart').onclick=()=>{const a=assetById(state.asset);if(state.visible.length)downloadCSV(`${a.name}-历史日线.csv`,[['日期','收盘','开盘','最高','最低','单位','来源','源代码'],...state.visible.map(p=>[p.date,p.value,p.open,p.high,p.low,a.unit,sourceName[meta(a.id).source?.provider],meta(a.id).source?.symbol])]);};
+ $('#export-table').onclick=()=>downloadCSV('观澜-回撤监控.csv',[['标的','代码','市场','时间维度','价格口径','最大回撤','最大回撤峰值日期','最大回撤峰值','最大回撤谷值日期','最大回撤谷值','所用自然日','目标基准最高点','目标基准日期','跌70%目标点位','距70%仍需下跌','70%预警','跌80%目标点位','距80%仍需下跌','80%预警','最新快照日期','最新点位','单位','源历史起点','源历史末日','计算起点','来源','数据状态','周期说明'],...state.rows.map(a=>{const m=meta(a.id),s=getSummary(a.id),latest=tableLatest(a.id,s),d=s?.mdd,t70=s?.targets?.['70'],t80=s?.targets?.['80'];return [a.name,a.code,a.group,tableRangeLabel(),basisName(state.tableBasis),pct(d?.drawdown),d?.peak.date,d?.peak.value,d?.trough.date,d?.trough.value,d?.days,s?.peak?.value,s?.peak?.date,t70?.level,pct(t70?.remainingDrop),alertNames[t70?.status??'unavailable'],t80?.level,pct(t80?.remainingDrop),alertNames[t80?.status??'unavailable'],latest?.date,latest?.value,a.unit,m.first,m.last,s?.calculationStart,sourceName[m.source?.provider],statusName[m.status],periodNote(state.tableBasis)];})]);
+ $('#export-chart').onclick=()=>{
+  if(!state.visible.length)return;
+  const a=assetById(state.asset),m=meta(a.id),periodic=isPeriodic(state.chartBasis);
+  const rows=periodic?[['日期',basisName(state.chartBasis),'单位','来源','源代码','口径说明'],...state.visible.map(p=>[p.date,p.value,a.unit,sourceName[m.source?.provider],m.source?.symbol,periodNote(state.chartBasis)])]:[['日期','收盘','开盘','最高','最低','单位','来源','源代码'],...state.visible.map(p=>[p.date,p.value,p.open,p.high,p.low,a.unit,sourceName[m.source?.provider],m.source?.symbol])];
+  downloadCSV(`${a.name}-${periodic?basisName(state.chartBasis):'历史日线'}.csv`,rows);
+ };
 }
 async function boot(){
  try{
