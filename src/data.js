@@ -69,6 +69,12 @@ export function summary(points,mode='all',basis='close'){
  const states=Object.values(targets).map(t=>t.status),alert=states.includes('reached')?'reached':states.includes('near')?'near':states.includes('far')?'far':'unavailable';
  return {mdd:maximumDrawdown(data,basis),peak,latest,start:data[0].date,end:latest.date,count:data.length,note:window.note,basis,basisCount:bars.length,excludedOhlcCount:data.length-bars.length,calculationStart:bars[0]?.date??null,targets,alert,currentDrawdown:peak?.value>0?latest.value/peak.value-1:null,latestChange:previous?.value>0?latest.value/previous.value-1:null};
 }
+export function dateWindow(points,start,end){
+ const valid=date=>/^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date;
+ if(!valid(start)||!valid(end))throw new RangeError('请选择有效的开始和结束日期。');
+ if(start>end)throw new RangeError('开始日期不能晚于结束日期。');
+ return {points:points.filter(p=>p.date>=start&&p.date<=end),start,end,note:'自选日期范围，仅使用区间内已有交易日'};
+}
 export function presetWindow(points,preset,basis='close'){
  if(!points.length)return {points:[],start:null,end:null,note:''};
  if(preset==='2015')return {...since2015(points,basis),end:points.at(-1).date};

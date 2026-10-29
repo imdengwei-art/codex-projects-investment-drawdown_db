@@ -66,3 +66,27 @@
 .decline-value{color:var(--chart-decline)}.outline:disabled{opacity:.4;cursor:default}.turning-label.decline-label{fill:var(--chart-decline)}
 .table-top-controls{align-items:center;gap:16px;flex-wrap:wrap}.table-time-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.table-time-controls select{margin:0;font-size:11px}.table-top-controls .segmented button{padding:7px 13px}.table-context{display:flex;justify-content:space-between;gap:15px;padding:10px 20px;color:#8c9b90;font-size:9px;background:#fcfdfb;border-bottom:1px solid #edf0ec}.table-context>span:last-child{color:#9e7c4c}th>small{display:block;font-size:8px;font-weight:400;color:#9aa79f;margin-top:4px}.level-line{display:flex;align-items:center;gap:8px;font-size:11px;line-height:1.8;font-variant-numeric:tabular-nums}.level-line+.level-line{margin-top:5px}.level-label{font-size:9px;color:#93a296;min-width:24px}.target-baseline{font-size:12px;font-weight:500}.target-baseline small{font-weight:400}.target-alert{font-size:9px;border-radius:3px;padding:1px 6px;white-space:nowrap}.target-alert.reached{color:#b44e3f;background:#fbede8}.target-alert.near{color:#a97524;background:#fff4db}.target-alert.far{color:#8b998e;background:#f1f4f0}.target-alert.unavailable{color:#a0a69f;background:#f5f5f2}.calculation-note{white-space:normal;max-width:140px;line-height:1.7;font-weight:400;font-size:9px!important}.target-remaining{min-width:130px}.source-info{min-width:170px}.data-audit{margin:14px 0 0;border:1px solid #e3e9e1;border-radius:5px;background:#fff;padding:12px 16px;color:#87968b;font-size:10px;line-height:1.9}.data-audit summary{cursor:pointer;color:#63816c;font-weight:500}.data-audit p{margin:9px 0 0}.chart-actions{display:flex;align-items:center;gap:10px}.chart-actions select{font-size:10px}.table-filters{flex-wrap:wrap}.table-filters select{max-width:165px}.chart-period{flex-wrap:wrap}@media(max-width:760px){.table-top-controls{padding:14px 12px}.table-time-controls{width:100%;gap:7px;justify-content:space-between}.table-time-controls .segmented button{font-size:10px;padding:7px 9px}.table-time-controls select{font-size:10px;padding:6px;max-width:135px}.table-context{padding:10px 12px;flex-direction:column;gap:5px}.chart-actions{width:100%;justify-content:space-between}.chart-actions select{margin:0}.table-filters select{max-width:150px}.data-audit{font-size:10px}.table-footer{flex-wrap:wrap}}
 .table-scroll th:first-child,.table-scroll td:first-child{position:sticky;left:0;z-index:1;min-width:135px;border-right:1px solid #edf0ec}.table-scroll th:first-child{background:#f8faf8;z-index:2}.table-scroll td:first-child{background:#fff}.table-scroll tr:hover td:first-child{background:#f4f9f5}
+.table-date-controls{padding:14px 20px;border-bottom:1px solid #e9eee9;background:#fcfdfb}
+#table-date-form{display:flex;align-items:flex-end;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+#table-date-form label{display:flex;flex-direction:column;gap:5px;color:#7e9185;font-size:10px;min-width:0}
+#table-date-form input{display:block;width:140px;min-width:0;padding:7px 8px;border:1px solid #dce5dc;border-radius:4px;background:#fff;color:#526e5d;font-size:12px}
+#table-date-form .date-separator{padding-bottom:9px;color:#9aa89e;font-size:10px}
+#apply-table-dates{padding:8px 16px;border:1px solid #d7e3d8;border-radius:4px;background:#edf4ee;color:#357356;font-size:11px}
+#apply-table-dates:disabled{opacity:.55;cursor:wait}
+.table-date-hint{align-self:flex-end;padding-bottom:9px;font-size:9px;color:#96a298}
+#table-date-status,#table-date-error{margin:10px 0 0;font-size:10px;line-height:1.7;color:#7c9285;text-align:right}
+#table-date-error{color:#b35d46}
+#table-date-status:empty,#table-date-error:empty{display:none}
+.table-floating-head{position:fixed;z-index:30;overflow:hidden;background:#f8faf8;border-bottom:1px solid #dce5dc;box-shadow:0 3px 8px #243b3410;pointer-events:none}
+.table-floating-head table{table-layout:fixed;margin:0}
+.table-floating-head th:first-child{position:sticky;left:0;z-index:2;min-width:135px;background:#f8faf8;border-right:1px solid #edf0ec}
+#table-date-controls[hidden],.table-floating-head[hidden]{display:none}
+@media(max-width:760px){
+ .table-date-controls{padding:12px}
+ #table-date-form{display:grid;grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);gap:9px}
+ #table-date-form input{width:100%;font-size:14px;padding:7px 5px}
+ #apply-table-dates{grid-column:3;grid-row:2}
+ .table-date-hint{grid-column:1/3;grid-row:2;padding-bottom:8px}
+ .table-time-controls .segmented button{padding:7px 6px;font-size:10px}
+ .table-time-controls select{margin-left:auto}
+}

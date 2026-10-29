@@ -1,21 +1,74 @@
-import {maximumDrawdown,stages,rebounds,since2015,summary,presetWindow,loadCatalog,loadManifest,loadHistory,daysBetween} from './data.js?v=3e22ec44bac0';
+import {maximumDrawdown,stages,rebounds,since2015,summary,presetWindow,dateWindow,loadCatalog,loadManifest,loadHistory,daysBetween} from './data.js?v=a3c6b4e39a49';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(v,d)=>Number.isFinite(v)?v.toLocaleString('en-US',{minimumFractionDigits:d??(Math.abs(v)<10?4:2),maximumFractionDigits:d??(Math.abs(v)<10?4:2)}):'—';
 const pct=v=>Number.isFinite(v)?(v*100).toFixed(2)+'%':'—';
 const sourceName={csindex:'中证指数官网',sina_hk:'新浪港股指数',sina_archive:'新浪历史归档',csv:'CSV补录',eastmoney:'东方财富',tencent:'腾讯财经',yahoo:'Yahoo Finance',stooq:'Stooq',sina_global:'新浪国际行情',sina_futures:'新浪期货',sina_forex:'新浪外汇',sge:'上金所'};
 const statusName={available:'已入库',stale:'保留旧数据',blocked:'访问受限',unavailable:'待补齐',pending:'待导入'};
-const state={catalog:[],manifest:{assets:{}},tableRange:'all',tableBasis:'intraday',chartBasis:'intraday',page:1,pageSize:15,asset:'csi300',preset:'all',points:[],visible:[],loadToken:0,rows:[]};
+const state={catalog:[],manifest:{assets:{}},tableRange:'all',tableBasis:'intraday',tableStart:null,tableEnd:null,tableSummaries:new Map(),tableLoadToken:0,chartBasis:'intraday',page:1,pageSize:15,asset:'csi300',preset:'all',points:[],visible:[],loadToken:0,rows:[]};
+let syncFloatingHeader=null;
 const meta=id=>state.manifest.assets[id]??{status:'pending',count:0};
 const assetById=id=>state.catalog.find(a=>a.id===id);
 const hasHistory=id=>(meta(id).count??0)>0;
 const hasGap=id=>hasHistory(id)&&assetById(id)?.reference_start&&meta(id).first>assetById(id).reference_start;
-const getSummary=(id,range=state.tableRange,basis=state.tableBasis)=>meta(id).summaries_by_basis?.[basis]?.[range]??(basis==='close'?meta(id).summaries?.[range]:null);
+const getSummary=(id,range=state.tableRange,basis=state.tableBasis)=>range==='custom'?state.tableSummaries.get(id)?.[basis]??null:meta(id).summaries_by_basis?.[basis]?.[range]??(basis==='close'?meta(id).summaries?.[range]:null);
+const tableRangeLabel=()=>state.tableRange==='custom'?`自选日期：${state.tableStart} — ${state.tableEnd}`:state.tableRange==='all'?'历史至今':'2015高点至今';
+const tableLatest=(id,s)=>s?.latest??(state.tableRange==='custom'?null:getSummary(id,'all','close')?.latest);
 const basisName=basis=>basis==='intraday'?'日内高低（跨日）':'日收盘';
 const alertNames={reached:'已达到',near:'临近目标',far:'未临近',unavailable:'不可计算'};
 function alertMarkup(target,depth){const status=target?.status??'unavailable';return `<div class="level-line"><span class="level-label">${depth}%</span><span class="target-alert ${status}">${alertNames[status]}</span></div>`;}
 function remainingMarkup(target,depth){return `<div class="level-line"><span class="level-label">${depth}%</span><span>${target?.status==='reached'?'已达 · 0.00%':pct(target?.remainingDrop)}</span></div>`;}
 function levelsMarkup(s){return [70,80].map(depth=>`<div class="level-line"><span class="level-label">${depth}%</span>${fmt(s?.targets?.[String(depth)]?.level)}</div>`).join('');}
+
+function tableLoading(busy){
+ $('#apply-table-dates').disabled=busy;$('#apply-table-dates').textContent=busy?'计算中…':'应用';$('#export-table').disabled=busy;$('.table-card').setAttribute('aria-busy',String(busy));
+}
+function tablePreset(range){
+ ++state.tableLoadToken;tableLoading(false);state.tableRange=range;state.page=1;
+ $('#table-date-controls').hidden=true;$('#table-custom-range').setAttribute('aria-expanded','false');$('#table-date-error').textContent='';$('#table-date-status').textContent='';renderTable();
+}
+async function applyTableDates(){
+ const start=$('#table-date-start').value,end=$('#table-date-end').value;
+ $('#table-date-error').textContent='';
+ try{dateWindow([],start,end);}catch(error){$('#table-date-error').textContent=error.message;return;}
+ const token=++state.tableLoadToken,assets=state.catalog.filter(a=>hasHistory(a.id)),results=new Map(),failures=[];let cursor=0,completed=0;
+ tableLoading(true);$('#table-date-status').textContent=`正在读取历史并计算 0 / ${assets.length}…`;
+ async function worker(){
+  while(cursor<assets.length&&token===state.tableLoadToken){
+   const asset=assets[cursor++];
+   try{
+    const points=await loadHistory(asset.id);if(token!==state.tableLoadToken)return;
+    const window=dateWindow(points,start,end).points;results.set(asset.id,{close:summary(window,'all','close'),intraday:summary(window,'all','intraday')});
+   }catch(error){failures.push(asset.name);}
+   if(token===state.tableLoadToken)$('#table-date-status').textContent=`正在读取历史并计算 ${++completed} / ${assets.length}…`;
+  }
+ }
+ try{
+  await Promise.all(Array.from({length:Math.min(6,assets.length)},()=>worker()));if(token!==state.tableLoadToken)return;
+  if(failures.length){$('#table-date-error').textContent=`${failures.length} 个标的读取失败（${failures.slice(0,3).join('、')}），本次日期筛选未应用，请重试。`;return;}
+  state.tableStart=start;state.tableEnd=end;state.tableSummaries=results;state.tableRange='custom';state.page=1;renderTable();
+ }finally{if(token===state.tableLoadToken){tableLoading(false);$('#table-date-status').textContent='';}}
+}
+function setupFloatingHeader(){
+ const scroller=$('.table-scroll'),source=scroller.querySelector('table'),overlay=document.createElement('div');
+ overlay.className='table-floating-head';overlay.hidden=true;overlay.setAttribute('aria-hidden','true');overlay.inert=true;document.body.append(overlay);
+ let frame=null,dirty=true;
+ function update(){
+  frame=null;
+  if(dirty){
+   const table=document.createElement('table'),columns=document.createElement('colgroup'),head=source.tHead.cloneNode(true);
+   for(const th of source.tHead.rows[0].cells){const col=document.createElement('col');col.style.width=th.getBoundingClientRect().width+'px';columns.append(col);}
+   head.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));table.append(columns,head);table.style.width=source.getBoundingClientRect().width+'px';overlay.replaceChildren(table);dirty=false;
+  }
+  const bounds=scroller.getBoundingClientRect(),tableBounds=source.getBoundingClientRect(),head=source.tHead.getBoundingClientRect();
+  overlay.hidden=!(head.top<0&&tableBounds.bottom>0&&bounds.width>0);
+  if(!overlay.hidden){overlay.style.left=bounds.left+'px';overlay.style.width=bounds.width+'px';overlay.style.top=Math.min(0,tableBounds.bottom-head.height)+'px';overlay.scrollLeft=scroller.scrollLeft;}
+ }
+ const schedule=(measure=false)=>{dirty=dirty||measure;if(frame===null)frame=requestAnimationFrame(update);};
+ window.addEventListener('scroll',()=>schedule(),{passive:true});window.addEventListener('resize',()=>schedule(true),{passive:true});scroller.addEventListener('scroll',()=>schedule(),{passive:true});
+ const observer=new ResizeObserver(()=>schedule(true));for(const element of [source,source.tHead,scroller])observer.observe(element);
+ syncFloatingHeader=()=>schedule(true);schedule();
+}
 
 function statusHTML(id){const m=meta(id),gap=hasGap(id);return `<span class="data-status ${m.status==='available'&&!gap?'':m.status==='stale'||gap?'warning':'error'}">${gap?'早期未齐':statusName[m.status]??'待核验'}</span>`;}
 function downloadCSV(filename,rows){
@@ -34,19 +87,24 @@ function filteredRows(){
 }
 function renderTable(){
  state.rows=filteredRows();const total=state.rows.length,pages=Math.max(1,Math.ceil(total/state.pageSize));state.page=Math.min(state.page,pages);
- $('#table-count').textContent=`${total} 个标的 · ${state.rows.filter(a=>hasHistory(a.id)).length} 个有数据`;
- $('#table-period').textContent=(state.tableRange==='all'?'历史至今：数据源可用范围':'2015高点至今：从各标的当年所选口径高点起算')+' · '+basisName(state.tableBasis);
+ const custom=state.tableRange==='custom',ready=state.rows.filter(a=>custom?getSummary(a.id)?.count:hasHistory(a.id));
+ $('#table-count').textContent=`${total} 个标的 · ${ready.length} 个${custom?'区间':''}有数据`;
+ $('#table-period').textContent=(custom?tableRangeLabel():state.tableRange==='all'?'历史至今：数据源可用范围':'2015高点至今：从各标的当年所选口径高点起算')+' · '+basisName(state.tableBasis);
+ $('#table-alert-context').textContent=custom?'预警按区间末快照计算 · 非交易日使用区间内最近交易日':'预警：距目标仍需下跌 ≤20% · 最新入库快照';
+ $('#table-latest-heading').textContent=custom?'区间末点位 / 快照日期':'最新点位 / 快照日期';
+ document.querySelectorAll('#table-range button').forEach(b=>b.classList.toggle('selected',b.dataset.range===state.tableRange));
  $('#table-basis-label').textContent=basisName(state.tableBasis);
  $('#peak-heading').textContent='最大回撤峰点 / '+(state.tableBasis==='intraday'?'最高价':'收盘');$('#trough-heading').textContent='最大回撤谷点 / '+(state.tableBasis==='intraday'?'最低价':'收盘');
  $('#page-label').textContent=`${state.page} / ${pages}`;$('#previous-page').disabled=state.page<=1;$('#next-page').disabled=state.page>=pages;
- const ready=state.rows.filter(a=>hasHistory(a.id)),records=ready.reduce((n,a)=>n+meta(a.id).count,0),dates=ready.map(a=>meta(a.id).first).sort();
- $('#metrics').innerHTML=[['已入库标的',`${ready.length} <small>/ ${total}</small>`,'当前表格筛选范围'],['历史日线总数',records.toLocaleString(),'原始日线 · 无模拟补点'],['最早源历史起点',dates[0]??'—','具体计算起点依价格口径显示'],['历史待补齐',String(state.rows.filter(a=>!hasHistory(a.id)||hasGap(a.id)).length),'含未入库与早期回溯缺口']].map(([a,b,c])=>`<div class="metric"><div>${a}</div><strong>${b}</strong><p>${c}</p></div>`).join('');
+ const records=ready.reduce((n,a)=>n+(custom?getSummary(a.id).count:meta(a.id).count),0),dates=ready.map(a=>custom?getSummary(a.id).start:meta(a.id).first).sort();
+ $('#metrics').innerHTML=[[custom?'区间有数据标的':'已入库标的',`${ready.length} <small>/ ${total}</small>`,'当前表格筛选范围'],[custom?'区间日线总数':'历史日线总数',records.toLocaleString(),'原始日线 · 无模拟补点'],[custom?'最早区间记录':'最早源历史起点',dates[0]??'—','具体计算起点依价格口径显示'],[custom?'区间暂无数据':'历史待补齐',String(custom?total-ready.length:state.rows.filter(a=>!hasHistory(a.id)||hasGap(a.id)).length),custom?'所选日期内没有日线的标的':'含未入库与早期回溯缺口']].map(([a,b,c])=>`<div class="metric"><div>${a}</div><strong>${b}</strong><p>${c}</p></div>`).join('');
  const rows=state.rows.slice((state.page-1)*state.pageSize,state.page*state.pageSize);
  $('#table-body').innerHTML=rows.map(asset=>{
-  const m=meta(asset.id),s=getSummary(asset.id),d=s?.mdd,latest=s?.latest??getSummary(asset.id,'all','close')?.latest;
-  const reason=state.tableBasis==='intraday'?(state.tableRange==='2015'?'无法确定2015高点，可切换收盘':'缺少有效日内高低价，可切换收盘'):'此范围无可用记录';
-  return `<tr class="${hasHistory(asset.id)?'':'unavailable-row'}" ${hasHistory(asset.id)?`data-asset="${asset.id}" data-alert-state="${s?.alert??'unavailable'}" tabindex="0" role="button" aria-label="查看${esc(asset.name)}走势"`:''}><td><b>${esc(asset.name)}</b><small>${esc(asset.code)} · ${esc(asset.group)}</small></td><td class="strong decline-value">${pct(d?.drawdown)}${!d?`<small class="calculation-note">${reason}</small>`:''}</td><td>${d?.peak.date??'—'}<small class="peak">${fmt(d?.peak.value)}</small></td><td>${d?.trough.date??'—'}<small class="teal">${fmt(d?.trough.value)}</small></td><td>${d?.days.toLocaleString()??'—'} <small class="inline">天</small><small>峰值 → 谷值</small></td><td class="target-baseline">${fmt(s?.peak?.value)}<small>${s?.peak?.date??'—'}</small><small>所选范围可用最高点</small></td><td class="target-levels">${levelsMarkup(s)}</td><td class="target-remaining">${[70,80].map(depth=>remainingMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="strong">${fmt(latest?.value)}<small>${latest?.date??'—'} · ${esc(asset.unit)}</small><small>行情快照</small></td><td class="target-alerts">${[70,80].map(depth=>alertMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="source-info">${m.first??'—'} — ${m.last??'—'}<small>${esc(sourceName[m.source?.provider]??'—')} · ${(m.count??0).toLocaleString()}日</small>${s?`<small class="coverage-note">计算起点 ${s.calculationStart??'无有效高低价'}${s.excludedOhlcCount?` · 排除 ${s.excludedOhlcCount} 日缺失/异常高低价`:''}</small>`:''}${state.tableRange==='2015'&&s?`<small class="coverage-note">${esc(s.note)}</small>`:''}</td><td>${statusHTML(asset.id)}</td></tr>`;
+  const m=meta(asset.id),s=getSummary(asset.id),d=s?.mdd,latest=tableLatest(asset.id,s);
+  const reason=custom&&!s?'所选日期内无可用日线':state.tableBasis==='intraday'?(state.tableRange==='2015'&&!s?'无法确定2015高点，可切换收盘':'有效日内高低价不足，可切换收盘'):'此范围无可用记录';
+  return `<tr class="${hasHistory(asset.id)?'':'unavailable-row'}" ${hasHistory(asset.id)?`data-asset="${asset.id}" data-alert-state="${s?.alert??'unavailable'}" tabindex="0" role="button" aria-label="查看${esc(asset.name)}走势"`:''}><td><b>${esc(asset.name)}</b><small>${esc(asset.code)} · ${esc(asset.group)}</small></td><td class="strong decline-value">${pct(d?.drawdown)}${!d?`<small class="calculation-note">${reason}</small>`:''}</td><td>${d?.peak.date??'—'}<small class="peak">${fmt(d?.peak.value)}</small></td><td>${d?.trough.date??'—'}<small class="teal">${fmt(d?.trough.value)}</small></td><td>${d?.days.toLocaleString()??'—'} <small class="inline">天</small><small>峰值 → 谷值</small></td><td class="target-baseline">${fmt(s?.peak?.value)}<small>${s?.peak?.date??'—'}</small><small>所选范围可用最高点</small></td><td class="target-levels">${levelsMarkup(s)}</td><td class="target-remaining">${[70,80].map(depth=>remainingMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="strong">${fmt(latest?.value)}<small>${latest?.date??'—'} · ${esc(asset.unit)}</small><small>${custom?'区间末快照':'行情快照'}</small></td><td class="target-alerts">${[70,80].map(depth=>alertMarkup(s?.targets?.[String(depth)],depth)).join('')}</td><td class="source-info">${m.first??'—'} — ${m.last??'—'}<small>${esc(sourceName[m.source?.provider]??'—')} · ${(m.count??0).toLocaleString()}日</small>${s?`<small class="coverage-note">计算起点 ${s.calculationStart??'无有效高低价'}${s.excludedOhlcCount?` · 排除 ${s.excludedOhlcCount} 日缺失/异常高低价`:''}</small>`:''}${custom?`<small class="coverage-note">${s?`区间 ${s.start} — ${s.end} · ${s.count.toLocaleString()}日`:'所选日期内无可用日线'}</small>`:''}${state.tableRange==='2015'&&s?`<small class="coverage-note">${esc(s.note)}</small>`:''}</td><td>${statusHTML(asset.id)}</td></tr>`;
  }).join('')||'<tr><td colspan="12" class="empty">没有匹配的标的，请调整筛选。</td></tr>';
+ syncFloatingHeader?.();
 }
 function renderAudit(){
  const m=meta('shanghai'),close=m.summaries_by_basis?.close?.all,day=m.summaries_by_basis?.intraday?.all,v=state.manifest.validation;
@@ -58,7 +116,8 @@ function clearPlot(message,title='暂未取得历史数据'){
  empty.innerHTML=`<strong>${esc(title)}</strong><p>${esc(message)}</p><small>不会使用模拟行情替代缺失数据。</small>`;
  $('#stage-list').innerHTML='';$('#stage-count').textContent='0 段';$('#visible-period').textContent='';$('#chart-source').textContent='';state.visible=[];
 }
-async function selectAsset(id,preset=state.preset,basis=state.chartBasis){
+async function selectAsset(id,preset=state.preset,basis=state.chartBasis,dates=null){
+ const customDates=preset==='custom'?(dates??{start:$('#date-start').value,end:$('#date-end').value}):null;
  state.asset=id;state.preset=preset;state.chartBasis=basis;$('#chart-basis').value=basis;const token=++state.loadToken,asset=assetById(id),m=meta(id);state.points=[];state.visible=[];
  $('#chart-asset').value=id;$('#chart-title').innerHTML=`${esc(asset.name)} <span>${esc(asset.code)}</span>`;$('#chart-subtitle').textContent=`${asset.group} · ${asset.unit} · 走势为收盘 · 回撤按${basisName(state.chartBasis)}`;
  $('#chart-summary').textContent='';$('#chart-quality').textContent='';$('#range-error').textContent='';$('#date-start').value='';$('#date-end').value='';$('#export-chart').disabled=true;
@@ -68,7 +127,7 @@ async function selectAsset(id,preset=state.preset,basis=state.chartBasis){
   const points=await loadHistory(id);if(token!==state.loadToken)return;state.points=points;
   if(!m.summaries){m.summaries={all:summary(points),'2015':summary(points,'2015')};renderTable();}
   for(const input of ['#date-start','#date-end']){$(input).min=points[0].date;$(input).max=points.at(-1).date;}
-  setRange(preset);
+  if(customDates){$('#date-start').value=customDates.start;$('#date-end').value=customDates.end;document.querySelectorAll('#chart-range button').forEach(b=>b.classList.remove('selected'));renderChart();}else setRange(preset);
  }catch(error){if(token===state.loadToken){clearPlot(error.message,'读取历史文件失败');$('#range-error').textContent='请重新导入该标的后刷新页面。';}}
 }
 function setRange(preset){
@@ -126,16 +185,18 @@ function renderChart(){
  $('#plot').onpointerleave=()=>{$('#tooltip').style.display='none';$('#crosshair')?.setAttribute('visibility','hidden');};
 }
 function bind(){
- $('#table-range').onclick=e=>{if(!e.target.dataset.range)return;state.tableRange=e.target.dataset.range;state.page=1;document.querySelectorAll('#table-range button').forEach(b=>b.classList.toggle('selected',b===e.target));renderTable();};
+ setupFloatingHeader();
+ $('#table-range').onclick=e=>{const range=e.target.dataset.range;if(!range)return;if(range==='custom'){$('#table-date-controls').hidden=false;$('#table-custom-range').setAttribute('aria-expanded','true');$('#table-date-start').focus();}else tablePreset(range);};
+ $('#table-date-form').onsubmit=e=>{e.preventDefault();applyTableDates();};
  for(const id of ['#table-group','#table-sort','#table-alert'])$(id).onchange=()=>{state.page=1;renderTable();};$('#table-search').oninput=()=>{state.page=1;renderTable();};
  $('#previous-page').onclick=()=>{state.page--;renderTable();};$('#next-page').onclick=()=>{state.page++;renderTable();};
- const drill=target=>{const row=target.closest('tr[data-asset]');if(row){selectAsset(row.dataset.asset,state.tableRange,state.tableBasis);$('#chart-section').scrollIntoView({behavior:'smooth'});}};
+ const drill=target=>{const row=target.closest('tr[data-asset]');if(row){selectAsset(row.dataset.asset,state.tableRange,state.tableBasis,state.tableRange==='custom'?{start:state.tableStart,end:state.tableEnd}:null);$('#chart-section').scrollIntoView({behavior:'smooth'});}};
  $('#table-body').onclick=e=>drill(e.target);$('#table-body').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drill(e.target);}};
  $('#table-basis').onchange=e=>{state.tableBasis=e.target.value;state.page=1;renderTable();};$('#chart-basis').onchange=e=>{state.chartBasis=e.target.value;if(state.preset==='custom')renderChart();else setRange(state.preset);};
  $('#chart-asset').onchange=e=>selectAsset(e.target.value);$('#chart-range').onclick=e=>{if(e.target.dataset.range)setRange(e.target.dataset.range);};
  $('#apply-dates').onclick=()=>{state.preset='custom';document.querySelectorAll('#chart-range button').forEach(b=>b.classList.remove('selected'));renderChart();};
  for(const id of ['#decline-toggle','#rebound-toggle','#max-toggle','#stage-toggle','#decline-threshold','#recovery-threshold'])$(id).onchange=renderChart;
- $('#export-table').onclick=()=>downloadCSV('观澜-回撤监控.csv',[['标的','代码','市场','时间维度','价格口径','最大回撤','最大回撤峰值日期','最大回撤峰值','最大回撤谷值日期','最大回撤谷值','所用自然日','目标基准最高点','目标基准日期','跌70%目标点位','距70%仍需下跌','70%预警','跌80%目标点位','距80%仍需下跌','80%预警','最新快照日期','最新点位','单位','源历史起点','源历史末日','计算起点','来源','数据状态'],...state.rows.map(a=>{const m=meta(a.id),s=getSummary(a.id),latest=s?.latest??getSummary(a.id,'all','close')?.latest,d=s?.mdd,t70=s?.targets?.['70'],t80=s?.targets?.['80'];return [a.name,a.code,a.group,state.tableRange==='all'?'历史至今':'2015高点至今',basisName(state.tableBasis),pct(d?.drawdown),d?.peak.date,d?.peak.value,d?.trough.date,d?.trough.value,d?.days,s?.peak?.value,s?.peak?.date,t70?.level,pct(t70?.remainingDrop),alertNames[t70?.status??'unavailable'],t80?.level,pct(t80?.remainingDrop),alertNames[t80?.status??'unavailable'],latest?.date,latest?.value,a.unit,m.first,m.last,s?.calculationStart,sourceName[m.source?.provider],statusName[m.status]];})]);
+ $('#export-table').onclick=()=>downloadCSV('观澜-回撤监控.csv',[['标的','代码','市场','时间维度','价格口径','最大回撤','最大回撤峰值日期','最大回撤峰值','最大回撤谷值日期','最大回撤谷值','所用自然日','目标基准最高点','目标基准日期','跌70%目标点位','距70%仍需下跌','70%预警','跌80%目标点位','距80%仍需下跌','80%预警','最新快照日期','最新点位','单位','源历史起点','源历史末日','计算起点','来源','数据状态'],...state.rows.map(a=>{const m=meta(a.id),s=getSummary(a.id),latest=tableLatest(a.id,s),d=s?.mdd,t70=s?.targets?.['70'],t80=s?.targets?.['80'];return [a.name,a.code,a.group,tableRangeLabel(),basisName(state.tableBasis),pct(d?.drawdown),d?.peak.date,d?.peak.value,d?.trough.date,d?.trough.value,d?.days,s?.peak?.value,s?.peak?.date,t70?.level,pct(t70?.remainingDrop),alertNames[t70?.status??'unavailable'],t80?.level,pct(t80?.remainingDrop),alertNames[t80?.status??'unavailable'],latest?.date,latest?.value,a.unit,m.first,m.last,s?.calculationStart,sourceName[m.source?.provider],statusName[m.status]];})]);
  $('#export-chart').onclick=()=>{const a=assetById(state.asset);if(state.visible.length)downloadCSV(`${a.name}-历史日线.csv`,[['日期','收盘','开盘','最高','最低','单位','来源','源代码'],...state.visible.map(p=>[p.date,p.value,p.open,p.high,p.low,a.unit,sourceName[meta(a.id).source?.provider],meta(a.id).source?.symbol])]);};
 }
 async function boot(){
@@ -146,6 +207,9 @@ async function boot(){
   const available=state.catalog.filter(a=>hasHistory(a.id)).length,gaps=state.catalog.filter(a=>hasGap(a.id)).length;
   $('#coverage-notice').innerHTML=`<b>真实历史日线 · ${available} / ${state.catalog.length} 个标的已入库</b><span>${available<state.catalog.length?'部分标的尚待补齐。':'已导入数据源可用历史。'} ${gaps?`${gaps} 个标的未覆盖参考图的早期年份，已标注“早期未齐”。`:''} 实际覆盖起点、截止日与来源逐项列明；未使用模拟补点。</span>`;
   $('#updated-at').textContent='数据批次 '+new Date(state.manifest.generated_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
+  const latest=Object.values(state.manifest.assets).filter(m=>m.count).map(m=>m.last).sort().at(-1);
+  $('#table-date-start').value='2015-01-01';$('#table-date-end').value=latest;
+  $('#table-date-start').max=latest;$('#table-date-end').max=latest;
   bind();renderTable();renderAudit();await selectAsset(state.asset);
  }catch(error){$('#coverage-notice').textContent='无法读取数据目录：'+error.message;clearPlot('请先运行历史数据同步脚本，确认 data/manifest.json 存在。','数据尚未就绪');}
 }
